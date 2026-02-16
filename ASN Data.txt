@@ -1,0 +1,1 @@
+storerCode	warehouseCode	poNumber	poDate	supplierCode	otherReference	productCode	quantity	uomCode
