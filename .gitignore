@@ -1,13 +1,41 @@
+# Virtual Environment
 venv/
+
+# Python Cache
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+
+# Environment Variables
 .env
+.env.*
+
+# Build/Dist folders
 dist/
 build/
-# *.spec
 
+# IDE files
 .vscode/
 .idea/
 
+# OS files
 .DS_Store
 Thumbs.db
+Desktop.ini
+
+# Project Specific Exclusions (Rattus and test data)
+Rattus.*
+*.pdf
+ASN Data.*
+check_top_header.py
+inspect_full_page1.py
+inspect_packing_list.py
+
+# Keep these (already tracked manually or allowed):
+# !asn_gui_v2.spec
+# !logo.png
+# !Label Quantity.xlsx
+# !Supplier Code.csv
+# !Consignee Code.csv
+# !Ship to Address Code.csv
