@@ -307,13 +307,13 @@ class ASNGeneratorApp(ctk.CTk):
         # Show/hide entry mode frame - only for InBound
         if mode == "Invoice":
             self.entry_mode_frame.grid(row=1, column=0, padx=0, pady=10, sticky="ew")
-            self.btn_download_labels.pack(side="left", padx=20, pady=20)
             self.on_entry_mode_change() # Ensure UI elements like sidebar are updated
         else:
             self.entry_mode_frame.grid_forget()
             self.entry_mode.set("PDF")  # Reset to PDF mode
             self.on_entry_mode_change()  # Update UI
-            self.btn_download_labels.pack_forget()
+        
+        self.refresh_export_buttons()
 
     def on_entry_mode_change(self):
         """Handle PDF/Manual entry mode change"""
@@ -345,10 +345,6 @@ class ASNGeneratorApp(ctk.CTk):
                 self.btn_upload.configure(text="Upload PDF")
                 self.btn_clear_pdfs.pack_forget()
             
-            # Show all export buttons
-            self.btn_save_excel.pack(side="left", padx=20, pady=20)
-            self.btn_download_txt.pack(side="left", padx=20, pady=20)
-            self.btn_download_labels.pack(side="left", padx=20, pady=20)
         elif mode == "Manual":
             # Show manual entry UI (labels only)
             self.manual_frame.grid(row=2, column=0, padx=0, pady=10, sticky="ew")
@@ -356,26 +352,59 @@ class ASNGeneratorApp(ctk.CTk):
             # Use columnspan=2 to ensure it takes full weighted width
             self.manual_scroll_frame.grid(row=0, column=0, columnspan=2, sticky="nsew", padx=10, pady=10)
             
-            # Hide Save to Excel and Download TXT buttons
-            self.btn_save_excel.pack_forget()
-            self.btn_download_txt.pack_forget()
-            
-            # Enable Download Labels if there's data
-            if len(self.manual_rows) > 0:
-                self.btn_download_labels.configure(state="normal")
-            else:
-                self.btn_download_labels.configure(state="disabled")
         elif mode == "Email":
             # ... (rest of Email mode)
             self.email_frame.grid(row=2, column=0, padx=0, pady=10, sticky="ew")
             self.email_inputs_frame.grid(row=3, column=0, padx=0, pady=5, sticky="ew")
             # Clear preview/table for email mode
             self.preview_frame.grid_forget()
+        
+        self.refresh_export_buttons()
+
+    def refresh_export_buttons(self):
+        """Dynamic visibility and state for export buttons based on mode and loaded data."""
+        mode = self.doc_type.get() # "Invoice" or "Packing List"
+        entry_mode = self.entry_mode.get() # "PDF", "Manual", "Email"
+        
+        # Reset visibility
+        self.btn_save_excel.pack_forget()
+        self.btn_download_txt.pack_forget()
+        self.btn_download_labels.pack_forget()
+
+        if entry_mode == "PDF":
+            # Determine if this is a Receipt Slip
+            is_receipt = False
+            if mode == "Invoice":
+                is_receipt = any("receipt slip" in os.path.basename(p).lower() for p in self.pdf_paths) or \
+                             any(item.get('is_receipt_slip') for item in self.extracted_data)
             
-            # Hide export buttons
-            self.btn_save_excel.pack_forget()
-            self.btn_download_txt.pack_forget()
-            self.btn_download_labels.pack_forget()
+            if is_receipt:
+                # ONLY show Label button for Receipt Slips
+                self.btn_download_labels.pack(side="left", padx=20, pady=20)
+                self.btn_download_labels.configure(state="normal" if self.extracted_data else "disabled")
+            else:
+                # Show standard Excel and TXT for other PDFs
+                self.btn_save_excel.pack(side="left", padx=20, pady=20)
+                self.btn_download_txt.pack(side="left", padx=20, pady=20)
+                
+                # Check if we should also show labels (e.g. for standard invoices if that was desired, 
+                # but based on current request we only show labels for receipt slips or manual mode)
+                # For now, sticking strictly to "Only show label for receipt slips" in PDF mode.
+            
+            # Update states for Excel/TXT regardless of visibility 
+            state = "normal" if self.extracted_data else "disabled"
+            self.btn_save_excel.configure(state=state)
+            self.btn_download_txt.configure(state=state)
+            
+        elif entry_mode == "Manual":
+            # Only show Label button for Manual mode
+            self.btn_download_labels.pack(side="left", padx=20, pady=20)
+            state = "normal" if self.manual_rows else "disabled"
+            self.btn_download_labels.configure(state=state)
+            
+        elif entry_mode == "Email":
+            # No export buttons for Email mode
+            pass
 
     def clear_all_pdfs(self):
         """Reset PDF data and sidebar"""
@@ -390,6 +419,7 @@ class ASNGeneratorApp(ctk.CTk):
         self.btn_save_excel.configure(state="disabled")
         self.btn_download_txt.configure(state="disabled")
         self.btn_download_labels.configure(state="disabled")
+        self.refresh_export_buttons()
 
     def add_manual_row(self):
         """Add a new empty row to manual entry with widgets"""
@@ -436,8 +466,8 @@ class ASNGeneratorApp(ctk.CTk):
         self.manual_rows.append(row_data)
         self.row_counter += 1
         
-        # Enable download labels button
-        self.btn_download_labels.configure(state="normal")
+        # Update export buttons
+        self.refresh_export_buttons()
         
         return row_data
 
@@ -476,9 +506,8 @@ class ASNGeneratorApp(ctk.CTk):
         if row_data in self.manual_rows:
             self.manual_rows.remove(row_data)
         
-        # Disable download labels if no rows left
-        if len(self.manual_rows) == 0:
-            self.btn_download_labels.configure(state="disabled")
+        # Refresh export buttons
+        self.refresh_export_buttons()
 
     def delete_selected_row(self):
         """Dummy method to satisfy old binding if any - now handled per-row"""
@@ -489,7 +518,7 @@ class ASNGeneratorApp(ctk.CTk):
         for row_data in self.manual_rows[:]: # Copy list to iterate
             self.delete_manual_row(row_data)
         
-        self.btn_download_labels.configure(state="disabled")
+        self.refresh_export_buttons()
         self.row_counter = 1
 
     def on_cell_double_click(self, event):
@@ -560,8 +589,7 @@ class ASNGeneratorApp(ctk.CTk):
         if newly_processed > 0:
             self.btn_save_excel.configure(state="normal")
             self.btn_download_txt.configure(state="normal")
-            if mode == "Invoice":
-                self.btn_download_labels.configure(state="normal")
+            self.refresh_export_buttons()
             self.lbl_status.configure(text=f"Total: {len(self.pdf_paths)} files, {len(self.extracted_data)} products")
         else:
             messagebox.showwarning("Warning", "No new products found in the selected files.")
@@ -711,9 +739,10 @@ class ASNGeneratorApp(ctk.CTk):
             return
 
         df = pd.DataFrame(file_data)
-        # Remove fileName from preview to save space
-        if 'fileName' in df.columns:
-            df = df.drop(columns=['fileName'])
+        # Remove internal fields from preview to save space
+        drop_cols = [c for c in ['fileName', 'is_receipt_slip'] if c in df.columns]
+        if drop_cols:
+            df = df.drop(columns=drop_cols)
             
         df = df.fillna('-').replace(r'^\s*$', '-', regex=True)
         table_str = df.to_string(index=False, justify='left', col_space=15)

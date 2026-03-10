@@ -1,61 +1,58 @@
 # InBound & OutBound Data Generator User Guide
 
 ## Introduction
-The **InBound & OutBound Data Generator** is a specialized tool designed for Nagarkot Forwarders Pvt Ltd to streamline the extraction of ASN (Advanced Shipping Notice) data from PDF invoices and packing lists. It automates the process of updating Excel registers and generating pallet labels for warehouse operations.
+The **ASN_Label_OutBound DataGenerator** is a specialized tool designed for Nagarkot Forwarders Pvt Ltd to streamline the extraction of ASN (Advanced Shipping Notice) data from PDF invoices, packing lists, and warehouse receipt slips. It automates the process of updating Excel registers and generating pallet labels for warehouse operations.
 
 ## How to Use
 
 ### 1. Launching the App
-Download and run the provided `asn_gui_v2.exe`. The application will open in full-screen mode with the Nagarkot corporate branding.
+Run the `ASN_Label_OutBound Data Generator.exe`. The application opens in a branded window with simple navigation.
 
 ### 2. The Workflow (Step-by-Step)
 
-#### A. InBound Data Processing (Invoices)
+#### A. InBound Data Processing (Invoices & Receipt Slips)
 1. **Select Mode**: Click the **InBound** radio button.
 2. **Choose Entry Mode**:
-   - **PDF Upload**: For automatic extraction from PDF invoices.
+   - **PDF Upload**: For automatic extraction from PDF documents.
    - **Manual Entry**: For generating labels manually without a PDF.
-   - **Email Draft**: To quickly generate an Outlook draft with attachments.
-3. **Action**: 
-   - If **PDF Upload**: Click **Upload PDF**, select your invoice. Review the data in the preview box.
-   - If **Manual Entry**: Click **Add Row**, select a **Product Code** (this auto-fills pallet quantity), enter the **Invoice No** and **Total Quantity**.
-4. **Export**: Click **Save to Excel** to update the `InBound ASN Register.xlsx` or **Download Labels** to generate a PDF of pallet labels.
+3. **Action (PDF Upload)**: 
+   - Click **Upload PDF**.
+   - **Standard Invoices**: The tool extracts all product data. You will see buttons to **Save to Excel** and **Download (Tab Delimited)**.
+   - **Receipt Slips**: If the PDF contains "RECEIPT SLIP" in the header, the tool automatically switches to a **Label-Only Mode**.
+     - It isolates the **"Receipt Details"** section.
+     - It hides the Excel/TXT buttons to prevent unverified registration.
+     - Click **Download Labels** to proceed to the review popup.
+4. **Manual Entry**: Use this to quickly generate labels by selecting a **Product Code** (auto-fills pallet quantity) and entering the **Total Quantity**.
 
 #### B. OutBound Data Processing (Packing Lists)
 1. **Select Mode**: Click the **OutBound** radio button.
-2. **Action**: Click **Upload PDF(s)**. You can select multiple files at once.
-3. **Review**: Use the sidebar on the left to switch between different loaded documents. You can edit the text in the preview box if corrections are needed; changes are synced automatically when switching files or saving.
-4. **Export**: Click **Save to Excel** to update `OutBound Order Register.xlsx` or **Download (Tab Delimited)** for system uploads.
+2. **Action**: Click **Upload PDF(s)** (Multiple selection supported).
+3. **Export**: Click **Save to Excel** or **Download (Tab Delimited)**.
 
-#### C. Creating Outlook Drafts
-1. **Switch to Email Draft**: Select **InBound** then **Email Draft**.
-2. **Upload Files**: Click **Select PDF Files** to add invoices and receipt slips.
-3. **Extraction**: The tool will attempt to extract the Supplier Name and Invoice Number from the filenames.
-4. **Create**: Click **Create Outlook Draft** to open a pre-composed email in Microsoft Outlook with all attachments and correct recipients.
+### 3. Smart Label Generation
+When you click **Download Labels**:
+1. A **Review Quantities** popup appears.
+2. **Standard Pack Split**: The tool automatically calculates the number of labels required based on the **Pallet Quantity** (Standard Pack) from your `Label Quantity.xlsx` mapping.
+3. **Manual Override**: You can adjust the quantities or the GRN date before hitting **Confirm & Generate PDF**.
 
 ## Interface Reference
 
-| Control / Input | Description | Expected Format |
+| Control / Input | Description | Note |
 | :--- | :--- | :--- |
-| **InBound / OutBound** | Switches between receiving and dispatching workflows. | Choice |
-| **PDF / Manual / Email** | Switches between automation modes. | Choice |
-| **Upload PDF(s)** | Opens file dialog to select input documents. | `.pdf` |
-| **Product Code** | Searchable dropdown for item selection. | `6-5 Digit` format |
-| **Total Quantity** | Total count of items for the specific invoice row. | Number |
-| **Pallet Quantity** | Number of items per pallet (auto-filled from mapping). | Number |
-| **GRN Date** | Date of material receipt. | `DD-MMM-YYYY` |
+| **InBound / OutBound** | Switches workspace mode. | |
+| **PDF / Manual** | Automation vs. Manual entry. | |
+| **Download Labels** | Generates PDF labels (10cm x 7.5cm). | Enabled for Receipt Slips & Manual Entry. |
+| **Save to Excel** | Updates the local tracking register. | Hidden for Receipt Slips. |
+| **GRN Date** | Receipt date printed on labels. | Default is today. |
 
 ## Troubleshooting & Validations
 
-If you see an error, check this table:
-
-| Message | What it means | Solution |
+| Message / Issue | Reason | Solution |
 | :--- | :--- | :--- |
-| `Invalid date format` | The GRN Date entered doesn't match the format. | Use `02-Feb-2026` style. |
-| `GRN Date cannot be in the future` | You've entered a date after today. | Ensure the date is today or earlier. |
-| `No new products found` | The PDF could not be parsed or contains no matching codes. | Verify the PDF is a supported format. |
-| `All fields are mandatory` | A row in Manual Entry is missing data. | Ensure all columns in the row are filled. |
-| `Outlook integration... not available` | `pywin32` is missing or Outlook is not installed. | Ensure Microsoft Outlook is installed on the PC. |
+| `Excel/TXT buttons hidden` | You uploaded a Receipt Slip. | This is intentional; Receipt Slips are for label generation only. |
+| `Invalid Date` | GRN Date format is incorrect. | Use `DD-MMM-YYYY` (e.g., `10-Mar-2026`). |
+| `No new products found` | PDF layout is unsupported. | Ensure the PDF follows the standard Invoice or Receipt Slip layout. |
+| `Logo Load Error` | `logo.png` is missing. | Ensure the logo is in the same folder as the script/exe if running from source. |
 
 ## Contact Support
 For feedback or technical issues, please contact the Nagarkot IT team.

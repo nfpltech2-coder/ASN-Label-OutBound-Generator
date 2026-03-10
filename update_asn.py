@@ -210,27 +210,93 @@ def extract_all_data(pdf_path, doc_type="Invoice"):
             if "japan" in header_text_lower and "kariya" in header_text_lower:
                 found_code = "ADVICS-JAPAN"
  
-        # 3. Extract Products
-        for page in pdf.pages:
+        # 3. Detect if this is a Receipt Slip and isolate Receipt Details
+        is_receipt_slip = "receipt slip" in header_text_lower
+        
+        for i, page in enumerate(pdf.pages):
             text = page.extract_text()
             if not text:
                 continue
             
-            lines = text.split('\n')
-            for line in lines:
-                # Optimized regex: Capture item code, optionally skip 8-digit HSN, capture qty (decimal/commas)
-                match = re.search(r'(\d{6}-\d{5})\s+(?:\d{8}\s+)?([\d,.]+)', line)
-                if match:
-                    p_code = match.group(1)
-                    qty_str = match.group(2).replace(',', '')
-                    try:
-                        qty_val = float(qty_str)
-                        # PCS are typically whole numbers; keep as int if possible
-                        qty = int(qty_val) if qty_val.is_integer() else qty_val
-                    except:
-                        continue
+            # If it's a receipt slip, we ONLY care about what's under "Receipt Details"
+            if is_receipt_slip:
+                if "Receipt Details" not in text:
+                    continue
+                
+                # Split by "Receipt Details" and take everything after it
+                sections = text.split("Receipt Details")
+                relevant_text = sections[1] if len(sections) > 1 else ""
+                
+                # Parse the Receipt Details block structure which is typically 3 lines per item:
+                # 1. Product Name [Code]
+                # 2. Received Qty [Asn Qty] Putaway Qty [Asn Qty]
+                # 3. [ InvoiceNo ] Status
+                
+                lines = [l.strip() for l in relevant_text.split('\n') if l.strip()]
+                
+                k = 0
+                while k < len(lines):
+                    line = lines[k]
                     
-                    if doc_type == "Invoice":
+                    # Look for Product Code [123456-12345]
+                    code_match = re.search(r'\[(\d{6}-\d{5})\]', line)
+                    if code_match:
+                        p_code = code_match.group(1)
+                        
+                        # Next line should be quantities
+                        qty = 0
+                        if k + 1 < len(lines):
+                            qty_line = lines[k+1]
+                            # Look for Received quantity: e.g. "200 PCS"
+                            qty_match = re.search(r'([\d,.]+)\s*PCS', qty_line, re.IGNORECASE)
+                            if qty_match:
+                                try:
+                                    qty_val = float(qty_match.group(1).replace(',', ''))
+                                    qty = int(qty_val) if qty_val.is_integer() else qty_val
+                                except:
+                                    pass
+                        
+                        # Third line (or later) usually has the Invoice No in brackets: [ INVOICE123 ]
+                        # Sometimes it's the very next line if quantity parsing was complex
+                        found_inv = invoice_no
+                        for offset in [1, 2]:
+                            if k + offset < len(lines):
+                                inv_line = lines[k+offset]
+                                inv_in_brackets = re.search(r'\[\s*([A-Za-z0-9\/-]+)\s*\]', inv_line)
+                                if inv_in_brackets:
+                                    found_inv = inv_in_brackets.group(1)
+                                    break
+                        
+                        products.append({
+                            'storerCode': 'AIPL',
+                            'warehouseCode': 'NFKD',
+                            'poNumber': found_inv, # Using the specific invoice found for this item
+                            'poDate': po_date,
+                            'supplierCode': found_code,
+                            'otherReference': '',
+                            'productCode': p_code,
+                            'quantity': qty,
+                            'uomCode': 'PCS',
+                            'fileName': os.path.basename(pdf_path),
+                            'is_receipt_slip': True
+                        })
+                        k += 2 # Move past Name and Qty lines
+                    else:
+                        k += 1
+            else:
+                # Standard Invoice extraction logic
+                lines = text.split('\n')
+                for line in lines:
+                    match = re.search(r'(\d{6}-\d{5})\s+(?:\d{8}\s+)?([\d,.]+)', line)
+                    if match:
+                        p_code = match.group(1)
+                        qty_str = match.group(2).replace(',', '')
+                        try:
+                            qty_val = float(qty_str)
+                            qty = int(qty_val) if qty_val.is_integer() else qty_val
+                        except:
+                            continue
+                        
                         products.append({
                             'storerCode': 'AIPL',
                             'warehouseCode': 'NFKD',
@@ -239,43 +305,10 @@ def extract_all_data(pdf_path, doc_type="Invoice"):
                             'supplierCode': found_code,
                             'otherReference': '',
                             'productCode': p_code,
-                            'quantity': int(qty),
+                            'quantity': qty,
                             'uomCode': 'PCS',
-                            'fileName': os.path.basename(pdf_path)
-                        })
-                    else: # OutBound
-                        # Robust Postcode Lookup
-                        postcode = ""
-                        # Step 1: Lookup by Consignee Code
-                        for entry in postcode_data:
-                            if str(entry.get('Consignee Code', '')).strip().lower() == found_code.lower():
-                                postcode = str(entry.get('Post Code', '')).strip()
-                                break
-                        
-                        # Step 2: Fallback to Lookup by Matched Name in Address Lines
-                        if not postcode and found_name:
-                            for entry in postcode_data:
-                                addr1 = str(entry.get('Line Address 1', '')).lower()
-                                addr2 = str(entry.get('Line Address 2', '')).lower()
-                                if found_name.lower() in addr1 or found_name.lower() in addr2:
-                                    postcode = str(entry.get('Post Code', '')).strip()
-                                    break
-                        
-                        # Use Invoice No as DO Number for OutBound if found, else fallback to po_number
-                        final_do_no = invoice_no if invoice_no != "Unknown" else po_number
-                        
-                        products.append({
-                            'storerCode': 'AIPL',
-                            'warehouseCode': 'NFKD',
-                            'doNumber': final_do_no,
-                            'consigneeCode': found_code,
-                            'shipToAddressPostCode': postcode,
-                            'requiredDate': po_date,
-                            'otherReference': '',
-                            'productCode': p_code,
-                            'quantity': int(qty),
-                            'uomCode': 'PCS',
-                            'fileName': os.path.basename(pdf_path)
+                            'fileName': os.path.basename(pdf_path),
+                            'is_receipt_slip': False
                         })
         
     return products

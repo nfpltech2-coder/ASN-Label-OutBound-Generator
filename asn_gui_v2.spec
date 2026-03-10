@@ -29,7 +29,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='asn_gui_v2',
+    name='ASN_Label_OutBound Data Generator',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
