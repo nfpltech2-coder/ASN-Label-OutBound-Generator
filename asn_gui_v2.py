@@ -690,7 +690,7 @@ class ASNGeneratorApp(ctk.CTk):
             
             # Add Recipients
             mail.To = "receiving@advics-ind.co.in; khageshkant_sharma@advics-ind.co.in"
-            mail.CC = "ranjeet_sandhu@advics-ind.co.in; admin.gj1@nagarkot.co.in; logistic_planning@advics-ind.co.in"
+            mail.CC = "ranjeet_sandhu@advics-ind.co.in; admin.gj1@nagarkot.co.in; logistic_planning@advics-ind.co.in; Vishal@advics-ind.co.in; deepa_singh@advics-ind.co.in; aanchal_kukreja@advics-ind.co.in; dispatch_north@advics-ind.co.in"
             # Adjust body based on receipt slip presence
             receipt_body_part = " and the corresponding receipt slips" if has_receipt else ""
             

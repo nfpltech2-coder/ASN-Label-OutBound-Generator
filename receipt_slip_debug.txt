@@ -1,0 +1,102 @@
+
+============================================================
+FILE: c:\Projects\Backup\RECEIPT SLIP BIPL INVOICE NO - AN0250014165.pdf
+============================================================
+
+--- PAGE 1 TEXT ---
+# RAIPL-2603-00480 RECEIPT SLIP
+RAIPL-2603-00480
+Asn Details
+Warehouse Code Storer Supplier Transporter
+NFKD AIPL [ ADVICS… BIPL [ BRAKE… 0025 [ P S LO…
+Arrival Date Gate Pass Number
+2026-03-07 1283
+Asn Details
+Product  Quantity Asn Info Po Number
+Caliper, LH [141120-14600] 200 PCS [ 200 PCS ] AAIPL-2603-00494 AN0250014165
+Caliper, RH [141110-14600] 200 PCS [ 200 PCS ] AAIPL-2603-00494 AN0250014165
+Receipt Details
+Product Received Putaway
+Caliper, LH [141120-14600]
+200 PCS [ 200 PCS ] 0 PCS [ 0 PCS ]
+[ AN0250014165 ] Sellable
+Caliper, RH [141110-14600]
+200 PCS [ 200 PCS ] 0 PCS [ 0 PCS ]
+[ AN0250014165 ] Sellable
+
+--- PAGE 2 TEXT ---
+
+
+============================================================
+FILE: c:\Projects\Backup\Receipt Slip ATI INVOICE NO - 910111300.pdf
+============================================================
+
+--- PAGE 1 TEXT ---
+# RAIPL-2603-00484 RECEIPT SLIP
+RAIPL-2603-00484
+Asn Details
+Warehouse Code Storer Supplier Transporter
+NFKD AIPL [ ADVICS… AT INDIA [ AT I… NIPPON EXP…
+Arrival Date Gate Pass Number
+2026-03-07 1277
+Asn Details
+Product Quantity Asn Info Po Number
+DISC RR [141186-74360] 936 PCS [ 936 PCS ] AAIPL-2603-00498 910111300
+Receipt Details
+Product Received Putaway
+DISC RR [141186-74360]
+936 PCS [ 936 PCS ] 0 PCS [ 0 PCS ]
+[ 910111300 ] Sellable
+
+--- PAGE 2 TEXT ---
+
+
+============================================================
+FILE: c:\Projects\Backup\Receipt Slip ADVICS CO. LTD JAPAN INVOICE NO -12601Q100091.pdf
+============================================================
+
+--- PAGE 1 TEXT ---
+# RAIPL-2603-00483 RECEIPT SLIP
+RAIPL-2603-00483
+Asn Details
+Warehouse Code Storer Supplier Transporter
+NFKD AIPL [ ADVICS… ADVICS-JAPA… TDP [ THAR D…
+Arrival Date Gate Pass Number
+2026-03-07 1279
+Asn Details
+Po Number
+Product Quantity Asn Info
+Cylinder Assy, AHBG RH [114010-
+504 PCS [ 504 PCS ] AAIPL-2603- 12601Q100091
+50820] 00497
+Cylinder Assy, AHBG LH [114010-
+168 PCS [ 168 PCS ] AAIPL-2603- 12601Q100091
+50830] 00497
+Actuator Assy, ESC [116040-92240] 1056 PCS [ 1056 AAIPL-2603- 12601Q100091
+00497
+PCS ]
+Caliper Assy, MOC RH [141140-
+640 PCS [ 640 PCS ] AAIPL-2603- 12601Q100091
+91211] 00497
+Caliper Assy, MOC LH [141150-
+512 PCS [ 512 PCS ] AAIPL-2603- 12601Q100091
+91211] 00497
+Receipt Details
+Product Received Putaway
+Cylinder Assy, AHBG RH [114010-50820]
+504 PCS [ 504 PCS ] 0 PCS [ 0 PCS ]
+[ 12601Q100091 ] Sellable
+Cylinder Assy, AHBG LH [114010-50830]
+168 PCS [ 168 PCS ] 0 PCS [ 0 PCS ]
+[ 12601Q100091 ] Sellable
+Actuator Assy, ESC [116040-92240]
+1056 PCS [ 1056 PCS ] 0 PCS [ 0 PCS ]
+[ 12601Q100091 ] Sellable
+Caliper Assy, MOC RH [141140-91211]
+640 PCS [ 640 PCS ] 0 PCS [ 0 PCS ]
+[ 12601Q100091 ] Sellable
+Caliper Assy, MOC LH [141150-91211]
+512 PCS [ 512 PCS ] 0 PCS [ 0 PCS ]
+[ 12601Q100091 ] Sellable
+
+--- PAGE 2 TEXT ---
